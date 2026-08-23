@@ -16,12 +16,10 @@ class ChamadoSerializer(serializers.ModelSerializer):
             "atualizado_em",
         ]
 
-        # Falha intencional:
-        # A API aceita criação de chamados sem título.
         extra_kwargs = {
             "titulo": {
-                "required": False,
-                "allow_blank": True,
+                "required": True,
+                "allow_blank": False,
             },
         }
 

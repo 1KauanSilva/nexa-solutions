@@ -1,3 +1,23 @@
+from django.urls import reverse
+from rest_framework import status
+from rest_framework.test import APITestCase
+
+from .models import Chamado
+
+class ChamadoTests(APITestCase):
+
+    def test_criar_chamado_sem_titulo(self):
+        dados = {
+            "descricao": "Chamado sem título para teste",
+            "status": "ABERTO",
+        }
+
+        response = self.client.post("/api/chamados/", dados, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("titulo", response.data)
+
+
 class IndicadoresTests(APITestCase):
 
     def test_indicadores_com_chamados(self):
@@ -43,7 +63,19 @@ class IndicadoresTests(APITestCase):
             status.HTTP_200_OK,
         )
 
-        self.assertEqual(response.data["total"], 0)
-        self.assertEqual(response.data["abertos"], 0)
-        self.assertEqual(response.data["em_andamento"], 0)
-        self.assertEqual(response.data["concluidos"], 0)
+        self.assertEqual(
+            response.data["total"],
+            0,
+        )
+        self.assertEqual(
+            response.data["abertos"],
+            0,
+        )
+        self.assertEqual(
+            response.data["em_andamento"],
+            0,
+        )
+        self.assertEqual(
+            response.data["concluidos"],
+            0,
+        )
