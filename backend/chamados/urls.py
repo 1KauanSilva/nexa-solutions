@@ -1,16 +1,17 @@
-from django.urls import path
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
 
-from .views import ChamadoDetailView, ChamadoListCreateView
+from .views import ChamadoViewSet
+
+
+router = DefaultRouter()
+
+router.register(
+    r"chamados",
+    ChamadoViewSet,
+    basename="chamado",
+)
 
 urlpatterns = [
-    path(
-        "chamados/",
-        ChamadoListCreateView.as_view(),
-        name="chamado-list-create",
-    ),
-    path(
-        "chamados/<int:pk>/",
-        ChamadoDetailView.as_view(),
-        name="chamado-detail",
-    ),
+    path("", include(router.urls)),
 ]
