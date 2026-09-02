@@ -1,54 +1,27 @@
-from django.urls import reverse
-from rest_framework import status
-from rest_framework.test import APITestCase
+class IndicadoresTests(APITestCase):
 
-from .models import Chamado
-
-
-class ChamadoFiltroStatusTests(APITestCase):
-
-    def setUp(self):
-        self.chamado_aberto = Chamado.objects.create(
+    def test_indicadores_com_chamados(self):
+        Chamado.objects.create(
             titulo="Chamado aberto",
-            descricao="Teste de chamado aberto",
             status=Chamado.Status.ABERTO,
         )
 
-        self.chamado_andamento = Chamado.objects.create(
+        Chamado.objects.create(
             titulo="Chamado em andamento",
-            descricao="Teste de chamado em andamento",
             status=Chamado.Status.EM_ANDAMENTO,
         )
 
-        self.chamado_concluido = Chamado.objects.create(
+        Chamado.objects.create(
             titulo="Chamado concluído",
-            descricao="Teste de chamado concluído",
             status=Chamado.Status.CONCLUIDO,
         )
 
-    def test_filtrar_chamados_por_status_aberto(self):
-        url = reverse("chamado-list")
-
-        response = self.client.get(
-            url,
-            {"status": "ABERTO"},
+        Chamado.objects.create(
+            titulo="Outro chamado aberto",
+            status=Chamado.Status.ABERTO,
         )
 
-        self.assertEqual(
-            response.status_code,
-            status.HTTP_200_OK,
-        )
-
-        self.assertEqual(len(response.data), 1)
-
-        self.assertEqual(
-            response.data[0]["status"],
-            Chamado.Status.ABERTO,
-        )
-
-    def test_sem_filtro_retorna_todos_os_chamados(self):
-        url = reverse("chamado-list")
-
+        url = reverse("indicadores")
         response = self.client.get(url)
 
         self.assertEqual(
@@ -56,22 +29,21 @@ class ChamadoFiltroStatusTests(APITestCase):
             status.HTTP_200_OK,
         )
 
-        self.assertEqual(len(response.data), 3)
+        self.assertEqual(response.data["total"], 4)
+        self.assertEqual(response.data["abertos"], 2)
+        self.assertEqual(response.data["em_andamento"], 1)
+        self.assertEqual(response.data["concluidos"], 1)
 
-    def test_status_invalido_retorna_erro_400(self):
-        url = reverse("chamado-list")
-
-        response = self.client.get(
-            url,
-            {"status": "INVALIDO"},
-        )
+    def test_indicadores_sem_chamados(self):
+        url = reverse("indicadores")
+        response = self.client.get(url)
 
         self.assertEqual(
             response.status_code,
-            status.HTTP_400_BAD_REQUEST,
+            status.HTTP_200_OK,
         )
 
-        self.assertEqual(
-            response.data["detail"],
-            "Status inválido.",
-        )
+        self.assertEqual(response.data["total"], 0)
+        self.assertEqual(response.data["abertos"], 0)
+        self.assertEqual(response.data["em_andamento"], 0)
+        self.assertEqual(response.data["concluidos"], 0)
